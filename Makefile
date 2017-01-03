@@ -88,7 +88,9 @@ $(BINDIR)/apiserver: .init .generate_files cmd/service-catalog $(NEWEST_GO_FILE)
 
 # This section contains the code generation stuff
 #################################################
-.generate_exes: $(BINDIR)/defaulter-gen $(BINDIR)/deepcopy-gen
+.generate_exes: $(BINDIR)/defaulter-gen \
+                $(BINDIR)/deepcopy-gen \
+                $(BINDIR)/conversion-gen
 	touch $@
 
 $(BINDIR)/defaulter-gen: .init cmd/libs/go2idl/defaulter-gen
@@ -96,6 +98,9 @@ $(BINDIR)/defaulter-gen: .init cmd/libs/go2idl/defaulter-gen
 
 $(BINDIR)/deepcopy-gen: .init cmd/libs/go2idl/deepcopy-gen
 	$(DOCKER_CMD) go build -o $@ $(SC_PKG)/cmd/libs/go2idl/deepcopy-gen
+
+$(BINDIR)/conversion-gen: cmd/libs/go2idl/conversion-gen
+	$(DOCKER_CMD) go build -o $@ $(SC_PKG)/$^
 
 # Regenerate all files if the gen exes changed or any "types.go" files changed
 .generate_files: .init .generate_exes $(TYPES_FILES)
@@ -107,6 +112,9 @@ $(BINDIR)/deepcopy-gen: .init cmd/libs/go2idl/deepcopy-gen
 	  -i $(SC_PKG)/pkg/apis/servicecatalog,$(SC_PKG)/pkg/apis/servicecatalog/v1alpha1 \
 	  --bounding-dirs github.com/kubernetes-incubator/service-catalog \
 	  -O zz_generated.deepcopy
+	$(DOCKER_CMD) $(BINDIR)/conversion-gen --v 1 --logtostderr \
+	  -i $(SC_PKG)/pkg/apis/servicecatalog,$(SC_PKG)/pkg/apis/servicecatalog/v1alpha1 \
+	  -O zz_generated.conversion
 	  touch $@
 
 # Some prereq stuff
