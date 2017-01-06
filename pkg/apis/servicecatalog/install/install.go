@@ -19,22 +19,21 @@ package install
 
 import (
 	"k8s.io/kubernetes/pkg/apimachinery/announced"
+	"k8s.io/kubernetes/pkg/util/sets"
 
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog"
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1alpha1"
 )
 
 func init() {
+	// Announce this API group to the API machinery
 	if err := announced.NewGroupMetaFactory(
 		&announced.GroupMetaFactoryArgs{
-			GroupName:              servicecatalog.GroupName,
-			VersionPreferenceOrder: []string{v1alpha1.SchemeGroupVersion.Version},
-			ImportPrefix:           "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog",
-			// TODO: what does this do?
-			RootScopedKinds: nil, // nil is allowed
-			// TODO: Do we have 'internal objects'? What is an 'internal object'?
-			// mhb: ? broker/catalog/service/instance are our 'internal objects' ?
-			AddInternalObjectsToScheme: servicecatalog.AddToScheme, // nil if there are no 'internal objects'
+			GroupName:                  servicecatalog.GroupName,
+			VersionPreferenceOrder:     []string{v1alpha1.SchemeGroupVersion.Version},
+			ImportPrefix:               "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog",
+			RootScopedKinds:            sets.NewString("Broker"), // Broker is non-namespaced
+			AddInternalObjectsToScheme: servicecatalog.AddToScheme,
 		},
 		// TODO what does this do? Is it necessary?
 		announced.VersionToSchemeFunc{
