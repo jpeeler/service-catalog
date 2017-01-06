@@ -1,5 +1,5 @@
 /*
-Copyright 2014 The Kubernetes Authors.
+Copyright 2017 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import (
 	"k8s.io/kubernetes/pkg/api/testapi"
 	apitesting "k8s.io/kubernetes/pkg/api/testing"
 	"k8s.io/kubernetes/pkg/apimachinery/registered"
+	metav1 "k8s.io/kubernetes/pkg/apis/meta/v1"
 	"k8s.io/kubernetes/pkg/runtime"
 	"k8s.io/kubernetes/pkg/runtime/schema"
 	"k8s.io/kubernetes/pkg/util/diff"
@@ -185,15 +186,15 @@ func TestSpecificKind(t *testing.T) {
 	}
 }
 
-// func TestList(t *testing.T) {
-// 	kind := "List"
-// 	item, err := api.Scheme.New(api.SchemeGroupVersion.WithKind(kind))
-// 	if err != nil {
-// 		t.Errorf("Couldn't make a %v? %v", kind, err)
-// 		return
-// 	}
-// 	roundTripSame(t, testapi.Default, item)
-// }
+func TestBrokerList(t *testing.T) {
+	kind := "BrokerList"
+	item, err := api.Scheme.New(servicecatalog.SchemeGroupVersion.WithKind(kind))
+	if err != nil {
+		t.Errorf("Couldn't make a %v? %v", kind, err)
+		return
+	}
+	roundTripSame(t, serviceCatalogAPIGroup(), item)
+}
 
 var nonRoundTrippableTypes = sets.NewString(
 	"ExportOptions",
@@ -207,23 +208,28 @@ var nonRoundTrippableTypes = sets.NewString(
 var nonInternalRoundTrippableTypes = sets.NewString("List", "ListOptions", "ExportOptions")
 var nonRoundTrippableTypesByVersion = map[string][]string{}
 
-// func TestRoundTripTypes(t *testing.T) {
-// 	for groupKey, group := range testapi.Groups {
-// 		for kind := range group.InternalTypes() {
-// 			t.Logf("working on %v in %v", kind, groupKey)
-// 			if nonRoundTrippableTypes.Has(kind) {
-// 				continue
-// 			}
-// 			// Try a few times, since runTest uses random values.
-// 			for i := 0; i < *fuzzIters; i++ {
-// 				doRoundTripTest(group, kind, t)
-// 				if t.Failed() {
-// 					break
-// 				}
-// 			}
-// 		}
-// 	}
-// }
+// based on pkg/api/testapi
+var catalogGroups = map[string]TestGroup{
+	"servicecatalog": serviceCatalogAPIGroup(),
+}
+
+func TestRoundTripTypes(t *testing.T) {
+	for groupKey, group := range catalogGroups {
+		for kind := range group.InternalTypes() {
+			t.Logf("working on %v in %v", kind, groupKey)
+			if nonRoundTrippableTypes.Has(kind) {
+				continue
+			}
+			// Try a few times, since runTest uses random values.
+			for i := 0; i < *fuzzIters; i++ {
+				doRoundTripTest(group, kind, t)
+				if t.Failed() {
+					break
+				}
+			}
+		}
+	}
+}
 
 func doRoundTripTest(group TestGroup, kind string, t *testing.T) {
 	item, err := api.Scheme.New(group.InternalGroupVersion().WithKind(kind))
@@ -241,36 +247,30 @@ func doRoundTripTest(group TestGroup, kind string, t *testing.T) {
 	}
 }
 
-// func TestEncode_Ptr(t *testing.T) {
-// 	grace := int64(30)
-// 	pod := &api.Pod{
-// 		ObjectMeta: api.ObjectMeta{
-// 			Labels: map[string]string{"name": "foo"},
-// 		},
-// 		Spec: api.PodSpec{
-// 			RestartPolicy: api.RestartPolicyAlways,
-// 			DNSPolicy:     api.DNSClusterFirst,
+func testEncodePtr(t *testing.T) {
+	broker := &servicecatalog.Broker{
+		TypeMeta: metav1.TypeMeta{
+			Kind: "broker",
+		},
+		ObjectMeta: api.ObjectMeta{
+			Labels: map[string]string{"name": "broker_foo"},
+		},
+	}
 
-// 			TerminationGracePeriodSeconds: &grace,
+	obj := runtime.Object(broker)
+	data, err := runtime.Encode(testapi.Default.Codec(), obj)
+	obj2, err2 := runtime.Decode(testapi.Default.Codec(), data)
+	if err != nil || err2 != nil {
+		t.Fatalf("Failure: '%v' '%v'", err, err2)
+	}
+	if _, ok := obj2.(*api.Pod); !ok {
+		t.Fatalf("Got wrong type")
+	}
+	if !api.Semantic.DeepEqual(obj2, broker) {
+		t.Errorf("\nExpected:\n\n %#v,\n\nGot:\n\n %#vDiff: %v\n\n", broker, obj2, diff.ObjectDiff(obj2, broker))
 
-// 			SecurityContext: &api.PodSecurityContext{},
-// 			Affinity:        &api.Affinity{},
-// 		},
-// 	}
-// 	obj := runtime.Object(pod)
-// 	data, err := runtime.Encode(testapi.Default.Codec(), obj)
-// 	obj2, err2 := runtime.Decode(testapi.Default.Codec(), data)
-// 	if err != nil || err2 != nil {
-// 		t.Fatalf("Failure: '%v' '%v'", err, err2)
-// 	}
-// 	if _, ok := obj2.(*api.Pod); !ok {
-// 		t.Fatalf("Got wrong type")
-// 	}
-// 	if !api.Semantic.DeepEqual(obj2, pod) {
-// 		t.Errorf("\nExpected:\n\n %#v,\n\nGot:\n\n %#vDiff: %v\n\n", pod, obj2, diff.ObjectDiff(obj2, pod))
-
-// 	}
-// }
+	}
+}
 
 func TestBadJSONRejection(t *testing.T) {
 	badJSONMissingKind := []byte(`{ }`)
