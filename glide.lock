@@ -329,7 +329,7 @@ imports:
   - 1.5/tools/metrics
   - 1.5/transport
 - name: k8s.io/gengo
-  version: 7ca94dd123f0f4965aac2e59ef249d8eaef14bcc
+  version: 8dd9c9e5e82c3cca687497c3cd7ac90e702c7c21
   subpackages:
   - args
   - examples/deepcopy-gen/generators
