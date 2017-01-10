@@ -44,6 +44,10 @@ import (
 	_ "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/install"
 )
 
+func init() {
+	testapi.Groups[servicecatalog.GroupName] = serviceCatalogAPIGroup()
+}
+
 // BABYNETES: ripped from pkg/api/serialization_test.go
 
 var fuzzIters = flag.Int("fuzz-iters", 20, "How many fuzzing iterations to do.")
@@ -77,7 +81,7 @@ func dataAsString(data []byte) string {
 	return dataString
 }
 
-func doRoundTripTest(group TestGroup, kind string, t *testing.T) {
+func doRoundTripTest(group testapi.TestGroup, kind string, t *testing.T) {
 	item, err := api.Scheme.New(group.InternalGroupVersion().WithKind(kind))
 	if err != nil {
 		t.Fatalf("Couldn't make a %v? %v", kind, err)
@@ -102,7 +106,7 @@ func doRoundTripTest(group TestGroup, kind string, t *testing.T) {
 }
 
 // roundTripSame verifies the same source object is tested in all API versions.
-func roundTripSame(t *testing.T, group TestGroup, item runtime.Object, except ...string) {
+func roundTripSame(t *testing.T, group testapi.TestGroup, item runtime.Object, except ...string) {
 	set := sets.NewString(except...)
 	seed := rand.Int63()
 	fuzzInternalObject(t, group.InternalGroupVersion(), item, seed)
@@ -179,7 +183,7 @@ func roundTrip(t *testing.T, codec runtime.Codec, item runtime.Object) {
 	}
 }
 
-func serviceCatalogAPIGroup() TestGroup {
+func serviceCatalogAPIGroup() testapi.TestGroup {
 	// OOPS: didn't register the right group version
 	groupVersion, err := schema.ParseGroupVersion("servicecatalog.k8s.io/v1alpha1")
 	if err != nil {
@@ -189,12 +193,12 @@ func serviceCatalogAPIGroup() TestGroup {
 	externalGroupVersion := schema.GroupVersion{Group: servicecatalog.GroupName,
 		Version: registered.GroupOrDie(servicecatalog.GroupName).GroupVersion.Version}
 
-	return TestGroup{
-		externalGroupVersion: groupVersion,
-		internalGroupVersion: servicecatalog.SchemeGroupVersion,
-		internalTypes:        api.Scheme.KnownTypes(servicecatalog.SchemeGroupVersion),
-		externalTypes:        api.Scheme.KnownTypes(externalGroupVersion),
-	}
+	return testapi.NewTestGroup(
+		groupVersion,
+		servicecatalog.SchemeGroupVersion,
+		api.Scheme.KnownTypes(servicecatalog.SchemeGroupVersion),
+		api.Scheme.KnownTypes(externalGroupVersion),
+	)
 }
 
 // For debugging problems
@@ -237,7 +241,7 @@ var nonInternalRoundTrippableTypes = sets.NewString("List", "ListOptions", "Expo
 var nonRoundTrippableTypesByVersion = map[string][]string{}
 
 // based on pkg/api/testapi
-var catalogGroups = map[string]TestGroup{
+var catalogGroups = map[string]testapi.TestGroup{
 	"servicecatalog": serviceCatalogAPIGroup(),
 }
 
@@ -297,47 +301,4 @@ func TestBadJSONRejection(t *testing.T) {
 	if err2 := DecodeInto(badJSONKindMismatch, &Node{}); err2 == nil {
 		t.Errorf("Kind is set but doesn't match the object type: %s", badJSONKindMismatch)
 	}*/
-}
-
-type TestGroup struct {
-	externalGroupVersion schema.GroupVersion
-	internalGroupVersion schema.GroupVersion
-	internalTypes        map[string]reflect.Type
-	externalTypes        map[string]reflect.Type
-}
-
-func (g TestGroup) ContentConfig() (string, *schema.GroupVersion, runtime.Codec) {
-	return "application/json", g.GroupVersion(), g.Codec()
-}
-
-func (g TestGroup) GroupVersion() *schema.GroupVersion {
-	copyOfGroupVersion := g.externalGroupVersion
-	return &copyOfGroupVersion
-}
-
-// InternalGroupVersion returns the group,version used to identify the internal
-// types for this API
-func (g TestGroup) InternalGroupVersion() schema.GroupVersion {
-	return g.internalGroupVersion
-}
-
-// InternalTypes returns a map of internal API types' kind names to their Go types.
-func (g TestGroup) InternalTypes() map[string]reflect.Type {
-	return g.internalTypes
-}
-
-// ExternalTypes returns a map of external API types' kind names to their Go types.
-func (g TestGroup) ExternalTypes() map[string]reflect.Type {
-	return g.externalTypes
-}
-
-// Codec returns the codec for the API version to test against, as set by the
-// KUBE_TEST_API_TYPE env var.
-func (g TestGroup) Codec() runtime.Codec {
-	return api.Codecs.LegacyCodec(g.externalGroupVersion)
-}
-
-// NegotiatedSerializer returns the negotiated serializer for the server.
-func (g TestGroup) NegotiatedSerializer() runtime.NegotiatedSerializer {
-	return api.Codecs
 }
