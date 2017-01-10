@@ -165,7 +165,7 @@ coverage: .init
 test: .init
 	@echo Running tests:
 	@for i in $(addprefix $(SC_PKG)/,$(TEST_DIRS)); do \
-	  $(DOCKER_CMD) go test $$i || exit $$? ; \
+	  $(DOCKER_CMD) go test -v $$i || exit $$? ; \
 	done
 
 clean:

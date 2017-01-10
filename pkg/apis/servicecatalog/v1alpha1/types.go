@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	kapi "k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/api/v1"
 	metav1 "k8s.io/kubernetes/pkg/apis/meta/v1"
 )
 
@@ -28,7 +28,7 @@ import (
 type Broker struct {
 	metav1.TypeMeta
 	// Non-namespaced.  The name of this resource in etcd is in ObjectMeta.Name.
-	kapi.ObjectMeta
+	v1.ObjectMeta
 
 	Spec   BrokerSpec
 	Status BrokerStatus
@@ -112,7 +112,7 @@ type ServiceClassList struct {
 // ServiceClass represents an offering in the service catalog.
 type ServiceClass struct {
 	metav1.TypeMeta
-	kapi.ObjectMeta
+	v1.ObjectMeta
 
 	// BrokerName is the reference to the Broker that provides this service.
 	// Immutable.
@@ -163,7 +163,7 @@ type InstanceList struct {
 // Instance represents a provisioned instance of a ServiceClass.
 type Instance struct {
 	metav1.TypeMeta
-	kapi.ObjectMeta
+	v1.ObjectMeta
 
 	Spec   InstanceSpec
 	Status InstanceStatus
@@ -241,7 +241,7 @@ type BindingList struct {
 // Instance.
 type Binding struct {
 	metav1.TypeMeta
-	kapi.ObjectMeta
+	v1.ObjectMeta
 
 	Spec   BindingSpec
 	Status BindingStatus
@@ -251,7 +251,7 @@ type Binding struct {
 type BindingSpec struct {
 	// InstanceRef is the reference to the Instance this binding is to.
 	// Immutable.
-	InstanceRef kapi.ObjectReference
+	InstanceRef v1.ObjectReference
 	// AppLabelSelector selects the pods in the Binding's namespace that
 	// should be injected with the results of the binding.  Immutable.
 	AppLabelSelector metav1.LabelSelector
