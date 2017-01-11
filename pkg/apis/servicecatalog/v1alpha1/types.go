@@ -26,20 +26,20 @@ import (
 // Broker represents an entity that provides ServiceClasses for use in the
 // service catalog.
 type Broker struct {
-	metav1.TypeMeta
+	metav1.TypeMeta `json:",inline"`
 	// Non-namespaced.  The name of this resource in etcd is in ObjectMeta.Name.
-	v1.ObjectMeta
+	v1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   BrokerSpec
-	Status BrokerStatus
+	Spec   BrokerSpec   `json:"spec"`
+	Status BrokerStatus `json:"status"`
 }
 
 // BrokerList is a list of Brokers.
 type BrokerList struct {
-	metav1.TypeMeta
-	metav1.ListMeta
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []Broker
+	Items []Broker `json:"items"`
 }
 
 const (
@@ -51,29 +51,29 @@ const (
 // BrokerSpec represents a description of a Broker.
 type BrokerSpec struct {
 	// The URL to communicate with the Broker via..
-	URL string
+	URL string `json:"url"`
 
 	// Auth credentials should live in an api.Secret that
 	// is documented to have "username" and "password" keys
-	AuthUsername string
-	AuthPassword string
+	AuthUsername string `json:"authUsername"`
+	AuthPassword string `json:"authPassword"`
 
 	// OSB-specific
 	// OSBGUID is the identity of this object for use with the OSB API.
-	OSBGUID string
+	OSBGUID string `json:"osbGuid"`
 }
 
 // BrokerStatus represents the current status of a Broker.
 type BrokerStatus struct {
-	Conditions []BrokerCondition
+	Conditions []BrokerCondition `json:"conditions"`
 }
 
 // BrokerCondition represents an aspect of a Broker's status.
 type BrokerCondition struct {
-	Type    BrokerConditionType
-	Status  ConditionStatus
-	Reason  string
-	Message string
+	Type    BrokerConditionType `json:"type"`
+	Status  ConditionStatus     `json:"status"`
+	Reason  string              `json:"reason"`
+	Message string              `json:"message"`
 }
 
 // BrokerConditionType represents a broker condition value

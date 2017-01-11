@@ -163,6 +163,7 @@ func roundTrip(t *testing.T, codec runtime.Codec, item runtime.Object) {
 		return
 	}
 
+	t.Logf("Codec: %+v\n", codec)
 	obj2, err := runtime.Decode(codec, data)
 	if err != nil {
 		t.Errorf("0: %v: %v\nCodec: %#v\nData: %s\nSource: %#v", name, err, codec, dataAsString(data), printer.Sprintf("%#v", item))
