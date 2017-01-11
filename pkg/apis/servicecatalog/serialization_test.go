@@ -126,7 +126,7 @@ func roundTripSame(t *testing.T, group testapi.TestGroup, item runtime.Object, e
 	}
 
 	t.Logf("version: %v\n", version)
-	t.Logf("codecs: %#v\n", codecs[0])
+	t.Logf("codec: %#v\n", codecs[0])
 
 	if !set.Has(version.String()) {
 		fuzzInternalObject(t, version, item, seed)
@@ -137,6 +137,7 @@ func roundTripSame(t *testing.T, group testapi.TestGroup, item runtime.Object, e
 }
 
 func roundTrip(t *testing.T, codec runtime.Codec, item runtime.Object) {
+	api.Scheme.Log(t)
 	printer := spew.ConfigState{DisableMethods: true}
 
 	original := item
