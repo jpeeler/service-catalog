@@ -113,18 +113,19 @@ $(BINDIR)/conversion-gen: cmd/libs/go2idl/conversion-gen
 	  -O zz_generated.deepcopy
 	$(DOCKER_CMD) $(BINDIR)/conversion-gen --v 1 --logtostderr \
 	  -i $(SC_PKG)/pkg/apis/servicecatalog,$(SC_PKG)/pkg/apis/servicecatalog/v1alpha1 \
-	  --extra-peer-dirs $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api, \
-                            $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api/v1, \
-                            $(SC_PKG)/vendor/k8s.io/apimachinery/pkg/apis/meta/v1, \
-                            $(SC_PKG)/vendor/k8s.io/apimachinery/pkg/conversion, \
-                            $(SC_PKG)/vendor/k8s.io/apimachinery/pkg/runtime \
+	  --extra-peer-dirs $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api,\
+	  $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api/v1,\
+	  $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/apis/meta/v1,\
+	  $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/conversion,\
+	  $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/runtime \
 	  -O zz_generated.conversion
+	  # the previous three directories will be changed from kubernetes to apimachinery in the future
 	  touch $@
 
 # Some prereq stuff
 ###################
 .init: $(scBuildImageTarget) glide.yaml
-#	$(DOCKER_CMD) glide install --strip-vendor
+	$(DOCKER_CMD) glide install --strip-vendor
 	touch $@
 
 .scBuildImage: hack/Dockerfile
