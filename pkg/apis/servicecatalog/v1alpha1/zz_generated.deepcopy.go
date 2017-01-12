@@ -21,8 +21,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	api "k8s.io/kubernetes/pkg/api"
-	v1 "k8s.io/kubernetes/pkg/apis/meta/v1"
+	v1 "k8s.io/kubernetes/pkg/api/v1"
+	meta_v1 "k8s.io/kubernetes/pkg/apis/meta/v1"
 	conversion "k8s.io/kubernetes/pkg/conversion"
 	runtime "k8s.io/kubernetes/pkg/runtime"
 	reflect "reflect"
@@ -65,7 +65,7 @@ func DeepCopy_v1alpha1_Binding(in interface{}, out interface{}, c *conversion.Cl
 		if newVal, err := c.DeepCopy(&in.ObjectMeta); err != nil {
 			return err
 		} else {
-			out.ObjectMeta = *newVal.(*api.ObjectMeta)
+			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
 		}
 		if err := DeepCopy_v1alpha1_BindingSpec(&in.Spec, &out.Spec, c); err != nil {
 			return err
@@ -114,7 +114,7 @@ func DeepCopy_v1alpha1_BindingSpec(in interface{}, out interface{}, c *conversio
 		if newVal, err := c.DeepCopy(&in.AppLabelSelector); err != nil {
 			return err
 		} else {
-			out.AppLabelSelector = *newVal.(*v1.LabelSelector)
+			out.AppLabelSelector = *newVal.(*meta_v1.LabelSelector)
 		}
 		if in.Parameters != nil {
 			in, out := &in.Parameters, &out.Parameters
@@ -159,7 +159,7 @@ func DeepCopy_v1alpha1_Broker(in interface{}, out interface{}, c *conversion.Clo
 		if newVal, err := c.DeepCopy(&in.ObjectMeta); err != nil {
 			return err
 		} else {
-			out.ObjectMeta = *newVal.(*api.ObjectMeta)
+			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
 		}
 		if err := DeepCopy_v1alpha1_BrokerStatus(&in.Status, &out.Status, c); err != nil {
 			return err
@@ -232,7 +232,7 @@ func DeepCopy_v1alpha1_Instance(in interface{}, out interface{}, c *conversion.C
 		if newVal, err := c.DeepCopy(&in.ObjectMeta); err != nil {
 			return err
 		} else {
-			out.ObjectMeta = *newVal.(*api.ObjectMeta)
+			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
 		}
 		if err := DeepCopy_v1alpha1_InstanceSpec(&in.Spec, &out.Spec, c); err != nil {
 			return err
@@ -321,7 +321,7 @@ func DeepCopy_v1alpha1_ServiceClass(in interface{}, out interface{}, c *conversi
 		if newVal, err := c.DeepCopy(&in.ObjectMeta); err != nil {
 			return err
 		} else {
-			out.ObjectMeta = *newVal.(*api.ObjectMeta)
+			out.ObjectMeta = *newVal.(*v1.ObjectMeta)
 		}
 		if in.Plans != nil {
 			in, out := &in.Plans, &out.Plans

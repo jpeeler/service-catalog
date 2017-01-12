@@ -113,7 +113,11 @@ $(BINDIR)/conversion-gen: cmd/libs/go2idl/conversion-gen
 	  -O zz_generated.deepcopy
 	$(DOCKER_CMD) $(BINDIR)/conversion-gen --v 1 --logtostderr \
 	  -i $(SC_PKG)/pkg/apis/servicecatalog,$(SC_PKG)/pkg/apis/servicecatalog/v1alpha1 \
-	  --extra-peer-dirs $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api
+	  --extra-peer-dirs $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api, \
+                            $(SC_PKG)/vendor/k8s.io/kubernetes/pkg/api/v1, \
+                            $(SC_PKG)/vendor/k8s.io/apimachinery/pkg/apis/meta/v1, \
+                            $(SC_PKG)/vendor/k8s.io/apimachinery/pkg/conversion, \
+                            $(SC_PKG)/vendor/k8s.io/apimachinery/pkg/runtime \
 	  -O zz_generated.conversion
 	  touch $@
 

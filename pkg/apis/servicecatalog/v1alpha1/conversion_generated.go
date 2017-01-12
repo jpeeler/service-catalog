@@ -75,8 +75,10 @@ func RegisterConversions(scheme *runtime.Scheme) error {
 }
 
 func autoConvert_v1alpha1_Binding_To_servicecatalog_Binding(in *Binding, out *servicecatalog.Binding, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	if err := Convert_v1alpha1_BindingSpec_To_servicecatalog_BindingSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -91,8 +93,10 @@ func Convert_v1alpha1_Binding_To_servicecatalog_Binding(in *Binding, out *servic
 }
 
 func autoConvert_servicecatalog_Binding_To_v1alpha1_Binding(in *servicecatalog.Binding, out *Binding, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	if err := Convert_servicecatalog_BindingSpec_To_v1alpha1_BindingSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -131,7 +135,6 @@ func Convert_servicecatalog_BindingCondition_To_v1alpha1_BindingCondition(in *se
 }
 
 func autoConvert_v1alpha1_BindingList_To_servicecatalog_BindingList(in *BindingList, out *servicecatalog.BindingList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]servicecatalog.Binding)(unsafe.Pointer(&in.Items))
 	return nil
@@ -142,7 +145,6 @@ func Convert_v1alpha1_BindingList_To_servicecatalog_BindingList(in *BindingList,
 }
 
 func autoConvert_servicecatalog_BindingList_To_v1alpha1_BindingList(in *servicecatalog.BindingList, out *BindingList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]Binding)(unsafe.Pointer(&in.Items))
 	return nil
@@ -153,7 +155,10 @@ func Convert_servicecatalog_BindingList_To_v1alpha1_BindingList(in *servicecatal
 }
 
 func autoConvert_v1alpha1_BindingSpec_To_servicecatalog_BindingSpec(in *BindingSpec, out *servicecatalog.BindingSpec, s conversion.Scope) error {
-	out.InstanceRef = in.InstanceRef
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.InstanceRef, &out.InstanceRef, 0); err != nil {
+		return err
+	}
 	out.AppLabelSelector = in.AppLabelSelector
 	out.Parameters = *(*map[string]interface{})(unsafe.Pointer(&in.Parameters))
 	out.SecretRef = in.SecretRef
@@ -169,7 +174,10 @@ func Convert_v1alpha1_BindingSpec_To_servicecatalog_BindingSpec(in *BindingSpec,
 }
 
 func autoConvert_servicecatalog_BindingSpec_To_v1alpha1_BindingSpec(in *servicecatalog.BindingSpec, out *BindingSpec, s conversion.Scope) error {
-	out.InstanceRef = in.InstanceRef
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.InstanceRef, &out.InstanceRef, 0); err != nil {
+		return err
+	}
 	out.AppLabelSelector = in.AppLabelSelector
 	out.Parameters = *(*map[string]interface{})(unsafe.Pointer(&in.Parameters))
 	out.SecretRef = in.SecretRef
@@ -203,8 +211,10 @@ func Convert_servicecatalog_BindingStatus_To_v1alpha1_BindingStatus(in *servicec
 }
 
 func autoConvert_v1alpha1_Broker_To_servicecatalog_Broker(in *Broker, out *servicecatalog.Broker, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	if err := Convert_v1alpha1_BrokerSpec_To_servicecatalog_BrokerSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -219,8 +229,10 @@ func Convert_v1alpha1_Broker_To_servicecatalog_Broker(in *Broker, out *serviceca
 }
 
 func autoConvert_servicecatalog_Broker_To_v1alpha1_Broker(in *servicecatalog.Broker, out *Broker, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	if err := Convert_servicecatalog_BrokerSpec_To_v1alpha1_BrokerSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -259,7 +271,6 @@ func Convert_servicecatalog_BrokerCondition_To_v1alpha1_BrokerCondition(in *serv
 }
 
 func autoConvert_v1alpha1_BrokerList_To_servicecatalog_BrokerList(in *BrokerList, out *servicecatalog.BrokerList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]servicecatalog.Broker)(unsafe.Pointer(&in.Items))
 	return nil
@@ -270,7 +281,6 @@ func Convert_v1alpha1_BrokerList_To_servicecatalog_BrokerList(in *BrokerList, ou
 }
 
 func autoConvert_servicecatalog_BrokerList_To_v1alpha1_BrokerList(in *servicecatalog.BrokerList, out *BrokerList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]Broker)(unsafe.Pointer(&in.Items))
 	return nil
@@ -323,8 +333,10 @@ func Convert_servicecatalog_BrokerStatus_To_v1alpha1_BrokerStatus(in *servicecat
 }
 
 func autoConvert_v1alpha1_Instance_To_servicecatalog_Instance(in *Instance, out *servicecatalog.Instance, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	if err := Convert_v1alpha1_InstanceSpec_To_servicecatalog_InstanceSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -339,8 +351,10 @@ func Convert_v1alpha1_Instance_To_servicecatalog_Instance(in *Instance, out *ser
 }
 
 func autoConvert_servicecatalog_Instance_To_v1alpha1_Instance(in *servicecatalog.Instance, out *Instance, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	if err := Convert_servicecatalog_InstanceSpec_To_v1alpha1_InstanceSpec(&in.Spec, &out.Spec, s); err != nil {
 		return err
 	}
@@ -379,7 +393,6 @@ func Convert_servicecatalog_InstanceCondition_To_v1alpha1_InstanceCondition(in *
 }
 
 func autoConvert_v1alpha1_InstanceList_To_servicecatalog_InstanceList(in *InstanceList, out *servicecatalog.InstanceList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]servicecatalog.Instance)(unsafe.Pointer(&in.Items))
 	return nil
@@ -390,7 +403,6 @@ func Convert_v1alpha1_InstanceList_To_servicecatalog_InstanceList(in *InstanceLi
 }
 
 func autoConvert_servicecatalog_InstanceList_To_v1alpha1_InstanceList(in *servicecatalog.InstanceList, out *InstanceList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]Instance)(unsafe.Pointer(&in.Items))
 	return nil
@@ -459,8 +471,10 @@ func Convert_servicecatalog_InstanceStatus_To_v1alpha1_InstanceStatus(in *servic
 }
 
 func autoConvert_v1alpha1_ServiceClass_To_servicecatalog_ServiceClass(in *ServiceClass, out *servicecatalog.ServiceClass, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	out.BrokerName = in.BrokerName
 	out.Bindable = in.Bindable
 	out.Plans = *(*[]servicecatalog.ServicePlan)(unsafe.Pointer(&in.Plans))
@@ -484,8 +498,10 @@ func Convert_v1alpha1_ServiceClass_To_servicecatalog_ServiceClass(in *ServiceCla
 }
 
 func autoConvert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(in *servicecatalog.ServiceClass, out *ServiceClass, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
-	out.ObjectMeta = in.ObjectMeta
+	// TODO: Inefficient conversion - can we improve it?
+	if err := s.Convert(&in.ObjectMeta, &out.ObjectMeta, 0); err != nil {
+		return err
+	}
 	out.BrokerName = in.BrokerName
 	out.Bindable = in.Bindable
 	out.Plans = *(*[]ServicePlan)(unsafe.Pointer(&in.Plans))
@@ -509,7 +525,6 @@ func Convert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(in *servicecat
 }
 
 func autoConvert_v1alpha1_ServiceClassList_To_servicecatalog_ServiceClassList(in *ServiceClassList, out *servicecatalog.ServiceClassList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]servicecatalog.ServiceClass)(unsafe.Pointer(&in.Items))
 	return nil
@@ -520,7 +535,6 @@ func Convert_v1alpha1_ServiceClassList_To_servicecatalog_ServiceClassList(in *Se
 }
 
 func autoConvert_servicecatalog_ServiceClassList_To_v1alpha1_ServiceClassList(in *servicecatalog.ServiceClassList, out *ServiceClassList, s conversion.Scope) error {
-	out.TypeMeta = in.TypeMeta
 	out.ListMeta = in.ListMeta
 	out.Items = *(*[]ServiceClass)(unsafe.Pointer(&in.Items))
 	return nil
