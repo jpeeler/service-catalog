@@ -220,15 +220,15 @@ func TestSpecificKind(t *testing.T) {
 	}
 }
 
-// func TestBrokerList(t *testing.T) {
-// 	kind := "BrokerList"
-// 	item, err := api.Scheme.New(serviceCatalogAPIGroup().InternalGroupVersion().WithKind(kind))
-// 	if err != nil {
-// 		t.Errorf("Couldn't make a %v? %v", kind, err)
-// 		return
-// 	}
-// 	roundTripSame(t, serviceCatalogAPIGroup(), item)
-// }
+func TestBrokerList(t *testing.T) {
+	kind := "BrokerList"
+	item, err := api.Scheme.New(serviceCatalogAPIGroup().InternalGroupVersion().WithKind(kind))
+	if err != nil {
+		t.Errorf("Couldn't make a %v? %v", kind, err)
+		return
+	}
+	roundTripSame(t, serviceCatalogAPIGroup(), item)
+}
 
 var nonRoundTrippableTypes = sets.NewString(
 	"ExportOptions",
@@ -247,23 +247,23 @@ var catalogGroups = map[string]testapi.TestGroup{
 	"servicecatalog": serviceCatalogAPIGroup(),
 }
 
-// func TestRoundTripTypes(t *testing.T) {
-// 	for groupKey, group := range catalogGroups {
-// 		for kind := range group.InternalTypes() {
-// 			t.Logf("working on %v in %v", kind, groupKey)
-// 			if nonRoundTrippableTypes.Has(kind) {
-// 				continue
-// 			}
-// 			// Try a few times, since runTest uses random values.
-// 			for i := 0; i < *fuzzIters; i++ {
-// 				doRoundTripTest(group, kind, t)
-// 				if t.Failed() {
-// 					break
-// 				}
-// 			}
-// 		}
-// 	}
-// }
+func TestRoundTripTypes(t *testing.T) {
+	for groupKey, group := range catalogGroups {
+		for kind := range group.InternalTypes() {
+			t.Logf("working on %v in %v", kind, groupKey)
+			if nonRoundTrippableTypes.Has(kind) {
+				continue
+			}
+			// Try a few times, since runTest uses random values.
+			for i := 0; i < *fuzzIters; i++ {
+				doRoundTripTest(group, kind, t)
+				if t.Failed() {
+					break
+				}
+			}
+		}
+	}
+}
 
 func testEncodePtr(t *testing.T) {
 	broker := &servicecatalog.Broker{
