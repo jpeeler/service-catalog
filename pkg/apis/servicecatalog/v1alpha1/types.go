@@ -197,7 +197,7 @@ type InstanceSpec struct {
 
 // InstanceStatus represents the current status of an Instance.
 type InstanceStatus struct {
-	Conditions []InstanceCondition `json:"items"`
+	Conditions []InstanceCondition `json:"conditions"`
 }
 
 // InstanceCondition represents an aspect of an Instance's status.
@@ -274,7 +274,7 @@ type BindingSpec struct {
 
 // BindingStatus represents the current status of a Binding.
 type BindingStatus struct {
-	Conditions []BindingCondition `json:"items"`
+	Conditions []BindingCondition `json:"conditions"`
 }
 
 // BindingCondition represents an aspect of a Binding's status.
