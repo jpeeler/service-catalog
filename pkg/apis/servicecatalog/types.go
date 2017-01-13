@@ -19,6 +19,7 @@ package servicecatalog
 import (
 	kapi "k8s.io/kubernetes/pkg/api"
 	metav1 "k8s.io/kubernetes/pkg/apis/meta/v1"
+	"k8s.io/kubernetes/pkg/runtime"
 )
 
 // +nonNamespaced=true
@@ -130,7 +131,7 @@ type ServiceClass struct {
 	OSBTags                    []string
 	OSBRequires                []string
 	OSBMaxDBPerNode            string
-	OSBMetadata                interface{}
+	OSBMetadata                runtime.Object
 	OSBDashboardOAuth2ClientID string
 	OSBDashboardSecret         string
 	OSBDashboardRedirectURI    string
@@ -147,7 +148,7 @@ type ServicePlan struct {
 	OSBGUID string
 
 	// OSB-specific
-	OSBMetadata interface{}
+	OSBMetadata runtime.Object
 	OSBFree     bool
 }
 

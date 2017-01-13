@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	"k8s.io/kubernetes/pkg/api/v1"
 	metav1 "k8s.io/kubernetes/pkg/apis/meta/v1"
+	"k8s.io/kubernetes/pkg/runtime"
 )
 
 // +nonNamespaced=true
@@ -128,13 +129,13 @@ type ServiceClass struct {
 	OSBGUID string `json:"osbGuid"`
 
 	// OSB-specific
-	OSBTags                    []string    `json:"osbTags"`
-	OSBRequires                []string    `json:"osbRequires"`
-	OSBMaxDBPerNode            string      `json:"osbMaxDBPerNode"`
-	OSBMetadata                interface{} `json:"osbMetadata"`
-	OSBDashboardOAuth2ClientID string      `json:"osbDashboardOAuth2ClientID"`
-	OSBDashboardSecret         string      `json:"osbDashboardSecret"`
-	OSBDashboardRedirectURI    string      `json:"osbDashboardRedirectURI"`
+	OSBTags                    []string             `json:"osbTags"`
+	OSBRequires                []string             `json:"osbRequires"`
+	OSBMaxDBPerNode            string               `json:"osbMaxDBPerNode"`
+	OSBMetadata                runtime.RawExtension `json:"osbMetadata"`
+	OSBDashboardOAuth2ClientID string               `json:"osbDashboardOAuth2ClientID"`
+	OSBDashboardSecret         string               `json:"osbDashboardSecret"`
+	OSBDashboardRedirectURI    string               `json:"osbDashboardRedirectURI"`
 }
 
 // ServicePlan represents a tier of a ServiceClass.
@@ -148,8 +149,8 @@ type ServicePlan struct {
 	OSBGUID string `json:"osbGuid"`
 
 	// OSB-specific
-	OSBMetadata interface{} `json:"osbMetadata"`
-	OSBFree     bool        `json:"osbFree"`
+	OSBMetadata runtime.RawExtension `json:"osbMetadata"`
+	OSBFree     bool                 `json:"osbFree"`
 }
 
 // InstanceList is a list of instances

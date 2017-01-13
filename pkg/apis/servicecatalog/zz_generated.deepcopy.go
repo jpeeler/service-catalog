@@ -353,7 +353,7 @@ func DeepCopy_servicecatalog_ServiceClass(in interface{}, out interface{}, c *co
 			if newVal, err := c.DeepCopy(&in.OSBMetadata); err != nil {
 				return err
 			} else {
-				out.OSBMetadata = *newVal.(*interface{})
+				out.OSBMetadata = *newVal.(*runtime.Object)
 			}
 		}
 		return nil
@@ -390,7 +390,7 @@ func DeepCopy_servicecatalog_ServicePlan(in interface{}, out interface{}, c *con
 			if newVal, err := c.DeepCopy(&in.OSBMetadata); err != nil {
 				return err
 			} else {
-				out.OSBMetadata = *newVal.(*interface{})
+				out.OSBMetadata = *newVal.(*runtime.Object)
 			}
 		}
 		return nil

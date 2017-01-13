@@ -477,24 +477,27 @@ func autoConvert_v1alpha1_ServiceClass_To_servicecatalog_ServiceClass(in *Servic
 	}
 	out.BrokerName = in.BrokerName
 	out.Bindable = in.Bindable
-	out.Plans = *(*[]servicecatalog.ServicePlan)(unsafe.Pointer(&in.Plans))
+	if in.Plans != nil {
+		in, out := &in.Plans, &out.Plans
+		*out = make([]servicecatalog.ServicePlan, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha1_ServicePlan_To_servicecatalog_ServicePlan(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Plans = nil
+	}
 	out.PlanUpdatable = in.PlanUpdatable
 	out.OSBGUID = in.OSBGUID
 	out.OSBTags = *(*[]string)(unsafe.Pointer(&in.OSBTags))
 	out.OSBRequires = *(*[]string)(unsafe.Pointer(&in.OSBRequires))
 	out.OSBMaxDBPerNode = in.OSBMaxDBPerNode
-	// TODO: Inefficient conversion - can we improve it?
-	if err := s.Convert(&in.OSBMetadata, &out.OSBMetadata, 0); err != nil {
-		return err
-	}
+	// WARNING: in.OSBMetadata requires manual conversion: inconvertible types (k8s.io/kubernetes/pkg/runtime.RawExtension vs k8s.io/kubernetes/pkg/runtime.Object)
 	out.OSBDashboardOAuth2ClientID = in.OSBDashboardOAuth2ClientID
 	out.OSBDashboardSecret = in.OSBDashboardSecret
 	out.OSBDashboardRedirectURI = in.OSBDashboardRedirectURI
 	return nil
-}
-
-func Convert_v1alpha1_ServiceClass_To_servicecatalog_ServiceClass(in *ServiceClass, out *servicecatalog.ServiceClass, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ServiceClass_To_servicecatalog_ServiceClass(in, out, s)
 }
 
 func autoConvert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(in *servicecatalog.ServiceClass, out *ServiceClass, s conversion.Scope) error {
@@ -504,29 +507,42 @@ func autoConvert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(in *servic
 	}
 	out.BrokerName = in.BrokerName
 	out.Bindable = in.Bindable
-	out.Plans = *(*[]ServicePlan)(unsafe.Pointer(&in.Plans))
+	if in.Plans != nil {
+		in, out := &in.Plans, &out.Plans
+		*out = make([]ServicePlan, len(*in))
+		for i := range *in {
+			if err := Convert_servicecatalog_ServicePlan_To_v1alpha1_ServicePlan(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Plans = nil
+	}
 	out.PlanUpdatable = in.PlanUpdatable
 	out.OSBGUID = in.OSBGUID
 	out.OSBTags = *(*[]string)(unsafe.Pointer(&in.OSBTags))
 	out.OSBRequires = *(*[]string)(unsafe.Pointer(&in.OSBRequires))
 	out.OSBMaxDBPerNode = in.OSBMaxDBPerNode
-	// TODO: Inefficient conversion - can we improve it?
-	if err := s.Convert(&in.OSBMetadata, &out.OSBMetadata, 0); err != nil {
-		return err
-	}
+	// WARNING: in.OSBMetadata requires manual conversion: inconvertible types (k8s.io/kubernetes/pkg/runtime.Object vs k8s.io/kubernetes/pkg/runtime.RawExtension)
 	out.OSBDashboardOAuth2ClientID = in.OSBDashboardOAuth2ClientID
 	out.OSBDashboardSecret = in.OSBDashboardSecret
 	out.OSBDashboardRedirectURI = in.OSBDashboardRedirectURI
 	return nil
 }
 
-func Convert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(in *servicecatalog.ServiceClass, out *ServiceClass, s conversion.Scope) error {
-	return autoConvert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(in, out, s)
-}
-
 func autoConvert_v1alpha1_ServiceClassList_To_servicecatalog_ServiceClassList(in *ServiceClassList, out *servicecatalog.ServiceClassList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]servicecatalog.ServiceClass)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]servicecatalog.ServiceClass, len(*in))
+		for i := range *in {
+			if err := Convert_v1alpha1_ServiceClass_To_servicecatalog_ServiceClass(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -536,7 +552,17 @@ func Convert_v1alpha1_ServiceClassList_To_servicecatalog_ServiceClassList(in *Se
 
 func autoConvert_servicecatalog_ServiceClassList_To_v1alpha1_ServiceClassList(in *servicecatalog.ServiceClassList, out *ServiceClassList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]ServiceClass)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]ServiceClass, len(*in))
+		for i := range *in {
+			if err := Convert_servicecatalog_ServiceClass_To_v1alpha1_ServiceClass(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -547,29 +573,15 @@ func Convert_servicecatalog_ServiceClassList_To_v1alpha1_ServiceClassList(in *se
 func autoConvert_v1alpha1_ServicePlan_To_servicecatalog_ServicePlan(in *ServicePlan, out *servicecatalog.ServicePlan, s conversion.Scope) error {
 	out.Name = in.Name
 	out.OSBGUID = in.OSBGUID
-	// TODO: Inefficient conversion - can we improve it?
-	if err := s.Convert(&in.OSBMetadata, &out.OSBMetadata, 0); err != nil {
-		return err
-	}
+	// WARNING: in.OSBMetadata requires manual conversion: inconvertible types (k8s.io/kubernetes/pkg/runtime.RawExtension vs k8s.io/kubernetes/pkg/runtime.Object)
 	out.OSBFree = in.OSBFree
 	return nil
-}
-
-func Convert_v1alpha1_ServicePlan_To_servicecatalog_ServicePlan(in *ServicePlan, out *servicecatalog.ServicePlan, s conversion.Scope) error {
-	return autoConvert_v1alpha1_ServicePlan_To_servicecatalog_ServicePlan(in, out, s)
 }
 
 func autoConvert_servicecatalog_ServicePlan_To_v1alpha1_ServicePlan(in *servicecatalog.ServicePlan, out *ServicePlan, s conversion.Scope) error {
 	out.Name = in.Name
 	out.OSBGUID = in.OSBGUID
-	// TODO: Inefficient conversion - can we improve it?
-	if err := s.Convert(&in.OSBMetadata, &out.OSBMetadata, 0); err != nil {
-		return err
-	}
+	// WARNING: in.OSBMetadata requires manual conversion: inconvertible types (k8s.io/kubernetes/pkg/runtime.Object vs k8s.io/kubernetes/pkg/runtime.RawExtension)
 	out.OSBFree = in.OSBFree
 	return nil
-}
-
-func Convert_servicecatalog_ServicePlan_To_v1alpha1_ServicePlan(in *servicecatalog.ServicePlan, out *ServicePlan, s conversion.Scope) error {
-	return autoConvert_servicecatalog_ServicePlan_To_v1alpha1_ServicePlan(in, out, s)
 }
