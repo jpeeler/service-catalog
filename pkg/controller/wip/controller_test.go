@@ -16,9 +16,7 @@ limitations under the License.
 
 package wip
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestReconcileBroker(t *testing.T) {
 	// create a fake kube client
