@@ -45,7 +45,7 @@ func NewController(
 	instanceInformer informers.InstanceInformer,
 	bindingInformer informers.BindingInformer,
 	brokerClientCreateFunc brokerapi.CreateFunc,
-) (Controller, error) {
+) (*controller, error) {
 	var (
 		brokerLister       = brokerInformer.Lister()
 		serviceClassLister = serviceClassInformer.Lister()
