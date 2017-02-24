@@ -83,7 +83,7 @@ func TestReconcileBroker(t *testing.T) {
 	}
 
 	broker := &v1alpha1.Broker{
-		ObjectMeta: v1.ObjectMeta{Name: "name"},
+		ObjectMeta: v1.ObjectMeta{Name: "test-name"},
 		Spec: v1alpha1.BrokerSpec{
 			URL:     "https://example.com",
 			OSBGUID: "OSBGUID field",
@@ -92,6 +92,7 @@ func TestReconcileBroker(t *testing.T) {
 	stopCh := make(chan struct{})
 	informerFactory.Start(stopCh)
 
+	// inject a broker resource into broker informer
 	testController.reconcileBroker(broker)
 
 	actions := fakeCatalogClient.Actions()
@@ -109,9 +110,17 @@ func TestReconcileBroker(t *testing.T) {
 	if e, a := "test-service", createActionObject.Name; e != a {
 		t.Fatalf("Unexpected name of serviceClass created: expected %v, got %v", e, a)
 	}
-	// second action should be an update action for broker status subresource
 
-	// inject a broker resource into broker informer
+	// second action should be an update action for broker status subresource
+	createAction2 := actions[1].(core.CreateAction)
+	if e, a := "update", createAction2.GetVerb(); e != a {
+		t.Fatalf("Unexpected verb on actions[1]; expected %v, got %v", e, a)
+	}
+
+	createActionObject2 := createAction2.GetObject().(*v1alpha1.Broker)
+	if e, a := "test-name", createActionObject2.Name; e != a {
+		t.Fatalf("Unexpected name of serviceClass created: expected %v, got %v", e, a)
+	}
 
 	// verify broker's catalog method is called
 	// verify sc client has service classes created
