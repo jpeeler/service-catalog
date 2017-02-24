@@ -29,6 +29,7 @@ import (
 
 	"k8s.io/client-go/1.5/kubernetes/fake"
 	"k8s.io/kubernetes/pkg/api/v1"
+	"k8s.io/kubernetes/pkg/client/testing/core"
 )
 
 func TestReconcileBroker(t *testing.T) {
@@ -89,15 +90,32 @@ func TestReconcileBroker(t *testing.T) {
 		},
 	}
 	stopCh := make(chan struct{})
+	informerFactory.Start(stopCh)
+
+	testController.reconcileBroker(broker)
+
+	actions := fakeCatalogClient.Actions()
+	if e, a := 2, len(actions); e != a {
+		t.Fatalf("Unexpected number of actions: expected %v, got %v", e, a)
+	}
+
+	// first action should be a create action for a service class
+	createAction := actions[0].(core.CreateAction)
+	if e, a := "create", createAction.GetVerb(); e != a {
+		t.Fatalf("Unexpected verb on actions[0]; expected %v, got %v", e, a)
+	}
+
+	createActionObject := createAction.GetObject().(*v1alpha1.ServiceClass)
+	if e, a := "test-service", createActionObject.Name; e != a {
+		t.Fatalf("Unexpected name of serviceClass created: expected %v, got %v", e, a)
+	}
+	// second action should be an update action for broker status subresource
 
 	// inject a broker resource into broker informer
-	serviceCatalogSharedInformers.Brokers().Informer().GetStore().Add(broker)
 
-	t.Logf("%+v\n", fakeCatalogClient.Actions())
-
-	go testController.Run(stopCh)
 	// verify broker's catalog method is called
 	// verify sc client has service classes created
 	// verify no kube resources created
+
 	stopCh <- struct{}{}
 }
