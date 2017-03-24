@@ -26,8 +26,6 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	v1core "k8s.io/client-go/kubernetes/typed/core/v1"
-	//JPEELER
-	//"k8s.io/client-go/pkg/api/unversioned"
 
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/pkg/api"
