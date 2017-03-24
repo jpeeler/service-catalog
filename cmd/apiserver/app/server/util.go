@@ -35,9 +35,6 @@ func setupBasicServer(s *ServiceCatalogServerOptions) (*genericapiserver.Config,
 	if err := s.GenericServerRunOptions.ApplyTo(genericConfig); err != nil {
 		return nil, err
 	}
-	// these are all mutators of each specific suboption in serverOptions object.
-	// this repeated pattern seems like we could refactor
-	// JPEELER
 	if err := s.SecureServingOptions.ApplyTo(genericConfig); err != nil {
 		return nil, err
 	}
