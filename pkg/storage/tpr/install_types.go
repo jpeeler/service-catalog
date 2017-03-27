@@ -22,9 +22,10 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"k8s.io/kubernetes/pkg/apis/extensions/v1beta1"
-	extensionsv1beta "k8s.io/kubernetes/pkg/client/clientset_generated/release_1_5/typed/extensions/v1beta1"
-	"k8s.io/kubernetes/pkg/util/wait"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
+	extensionsv1beta "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
 // this is the set of third party resources to be installed. each key is the name of the TPR to
@@ -61,7 +62,7 @@ func (i *Installer) InstallTypes() error {
 
 	for _, tpr := range thirdPartyResources {
 		glog.Infof("Checking for existence of %s", tpr.Name)
-		if _, err := i.tprs.Get(tpr.Name); err == nil {
+		if _, err := i.tprs.Get(tpr.Name, metav1.GetOptions{}); err == nil {
 			glog.Infof("Found existing TPR %s", tpr.Name)
 			continue
 		}
@@ -78,7 +79,7 @@ func (i *Installer) InstallTypes() error {
 
 				// There can be a delay, so poll until it's ready to go...
 				err := wait.PollImmediate(1*time.Second, 1*time.Second, func() (bool, error) {
-					if _, err := client.Get(tpr.Name); err == nil {
+					if _, err := client.Get(tpr.Name, metav1.GetOptions{}); err == nil {
 						glog.Infof("TPR %s is ready", tpr.Name)
 						return true, nil
 					}
