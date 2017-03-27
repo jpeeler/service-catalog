@@ -26,11 +26,16 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"github.com/pborman/uuid"
+
+	"k8s.io/client-go/pkg/api"
+	restclient "k8s.io/client-go/rest"
+
+	genericserveroptions "k8s.io/apiserver/pkg/server/options"
+	"k8s.io/apiserver/pkg/storage/storagebackend"
 
 	_ "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/install"
 	_ "k8s.io/kubernetes/pkg/api/install"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	genericserveroptions "k8s.io/kubernetes/pkg/genericapiserver/options"
 
 	"github.com/kubernetes-incubator/service-catalog/cmd/apiserver/app/server"
 	servicecatalogclient "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset"
@@ -69,8 +74,9 @@ func getFreshApiserverAndClient(t *testing.T, storageTypeStr string) (servicecat
 			StorageTypeString:       storageTypeStr,
 			GenericServerRunOptions: genericserveroptions.NewServerRunOptions(),
 			SecureServingOptions:    secureServingOptions,
+			InsecureServingOptions:  genericserveroptions.NewInsecureServingOptions(),
 			EtcdOptions: &server.EtcdOptions{
-				EtcdOptions: genericserveroptions.NewEtcdOptions(),
+				EtcdOptions: genericserveroptions.NewEtcdOptions(storagebackend.NewDefaultConfig(uuid.New(), api.Scheme, nil)),
 			},
 			TPROptions:            tprOptions,
 			AuthenticationOptions: genericserveroptions.NewDelegatingAuthenticationOptions(),

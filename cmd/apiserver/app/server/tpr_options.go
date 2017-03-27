@@ -18,8 +18,8 @@ package server
 
 import (
 	"github.com/spf13/pflag"
-	restclient "k8s.io/client-go/rest
 	"k8s.io/client-go/pkg/api"
+	restclient "k8s.io/client-go/rest"
 
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
