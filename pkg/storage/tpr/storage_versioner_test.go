@@ -177,7 +177,8 @@ func getTestVersioner(
 		singularKind: ServiceBrokerKind,
 		listKind:     ServiceBrokerListKind,
 		restClient: &fakerestclient.RESTClient{
-			Client: fakerestclient.CreateHTTPClient(roundTripper),
+			APIRegistry: api.Registry,
+			Client:      fakerestclient.CreateHTTPClient(roundTripper),
 			NegotiatedSerializer: serializer.DirectCodecFactory{
 				CodecFactory: api.Codecs,
 			},
