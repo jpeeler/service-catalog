@@ -23,8 +23,8 @@ import (
 	"github.com/kubernetes-incubator/service-catalog/pkg/storage/tpr"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	kubeclientfake "k8s.io/client-go/kubernetes/fake"
 	core "k8s.io/client-go/testing"
-	kubeclientfake "k8s.io/kubernetes/pkg/client/clientset_generated/clientset/fake"
 )
 
 // make sure RunServer returns with an error when TPR fails to install
