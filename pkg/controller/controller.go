@@ -19,20 +19,17 @@ package controller
 import (
 	"fmt"
 
-	"encoding/json"
-
 	"github.com/ghodss/yaml"
 	"github.com/golang/glog"
 
-	"k8s.io/client-go/1.5/kubernetes"
-	"k8s.io/client-go/1.5/pkg/api"
-	"k8s.io/client-go/1.5/pkg/api/errors"
-	"k8s.io/client-go/1.5/pkg/api/v1"
-	kapiv1 "k8s.io/kubernetes/pkg/api/v1"
-	"k8s.io/kubernetes/pkg/client/cache"
-	"k8s.io/kubernetes/pkg/labels"
-	"k8s.io/kubernetes/pkg/runtime"
-	runtimeutil "k8s.io/kubernetes/pkg/util/runtime"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/tools/cache"
 
 	checksum "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/checksum/versioned/v1alpha1"
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1alpha1"
@@ -115,7 +112,7 @@ type controller struct {
 
 // Run runs the controller until the given stop channel can be read from.
 func (c *controller) Run(stopCh <-chan struct{}) {
-	defer runtimeutil.HandleCrash()
+	defer runtime.HandleCrash()
 	glog.Info("Starting service-catalog controller")
 
 	<-stopCh
@@ -229,7 +226,7 @@ func (c *controller) reconcileBroker(broker *v1alpha1.Broker) {
 		// Delete ServiceClasses that are for THIS Broker.
 		for _, svcClass := range svcClasses {
 			if svcClass.BrokerName == broker.Name {
-				err := c.serviceCatalogClient.ServiceClasses().Delete(svcClass.Name, &kapiv1.DeleteOptions{})
+				err := c.serviceCatalogClient.ServiceClasses().Delete(svcClass.Name, &metav1.DeleteOptions{})
 				if err != nil {
 					glog.Errorf("Error deleting ServiceClass %v (Broker %v): %v", svcClass.Name, broker.Name, err)
 					c.updateBrokerReadyCondition(
@@ -883,7 +880,7 @@ func (c *controller) reconcileBinding(binding *v1alpha1.Binding) {
 
 func (c *controller) injectBinding(binding *v1alpha1.Binding, credentials *brokerapi.Credential) error {
 	secret := &v1.Secret{
-		ObjectMeta: v1.ObjectMeta{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      binding.Spec.SecretName,
 			Namespace: binding.Namespace,
 		},
@@ -901,7 +898,7 @@ func (c *controller) injectBinding(binding *v1alpha1.Binding, credentials *broke
 
 	found := false
 
-	_, err := c.kubeClient.Core().Secrets(binding.Namespace).Get(binding.Spec.SecretName)
+	_, err := c.kubeClient.Core().Secrets(binding.Namespace).Get(binding.Spec.SecretName, metav1.GetOptions{})
 	if err == nil {
 		found = true
 	}
@@ -916,7 +913,7 @@ func (c *controller) injectBinding(binding *v1alpha1.Binding, credentials *broke
 }
 
 func (c *controller) ejectBinding(binding *v1alpha1.Binding) error {
-	_, err := c.kubeClient.Core().Secrets(binding.Namespace).Get(binding.Spec.SecretName)
+	_, err := c.kubeClient.Core().Secrets(binding.Namespace).Get(binding.Spec.SecretName, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return nil
@@ -927,7 +924,7 @@ func (c *controller) ejectBinding(binding *v1alpha1.Binding) error {
 	}
 
 	glog.V(5).Infof("Deleting secret %v/%v", binding.Namespace, binding.Spec.SecretName)
-	err = c.kubeClient.Core().Secrets(binding.Namespace).Delete(binding.Spec.SecretName, &api.DeleteOptions{})
+	err = c.kubeClient.Core().Secrets(binding.Namespace).Delete(binding.Spec.SecretName, &metav1.DeleteOptions{})
 
 	return err
 }
@@ -972,7 +969,7 @@ func (c *controller) updateBindingFinalizers(
 	// Get the latest version of the binding so that we can avoid conflicts
 	// (since we have probably just updated the status of the binding and are
 	// now removing the last finalizer).
-	binding, err := c.serviceCatalogClient.Bindings(binding.Namespace).Get(binding.Name)
+	binding, err := c.serviceCatalogClient.Bindings(binding.Namespace).Get(binding.Name, metav1.GetOptions{})
 	if err != nil {
 		glog.Errorf("Error getting Binding %v/%v to finalize: %v", binding.Namespace, binding.Name, err)
 	}
@@ -1016,7 +1013,7 @@ func GetAuthCredentialsFromBroker(client kubernetes.Interface, broker *v1alpha1.
 		return "", "", nil
 	}
 
-	authSecret, err := client.Core().Secrets(broker.Spec.AuthSecret.Namespace).Get(broker.Spec.AuthSecret.Name)
+	authSecret, err := client.Core().Secrets(broker.Spec.AuthSecret.Namespace).Get(broker.Spec.AuthSecret.Name, metav1.GetOptions{})
 	if err != nil {
 		return "", "", err
 	}
@@ -1049,6 +1046,7 @@ func convertCatalog(in *brokerapi.Catalog) ([]*v1alpha1.ServiceClass, error) {
 			OSBGUID:       svc.ID,
 			OSBTags:       svc.Tags,
 			OSBRequires:   svc.Requires,
+			// OSBMetadata:   svc.Metadata,
 		}
 
 		if svc.Metadata != nil {
@@ -1071,6 +1069,7 @@ func convertServicePlans(plans []brokerapi.ServicePlan) ([]v1alpha1.ServicePlan,
 		ret[i] = v1alpha1.ServicePlan{
 			Name:    plan.Name,
 			OSBGUID: plan.ID,
+			// OSBMetadata: plan.Metadata,
 			OSBFree: plan.Free,
 		}
 		if plan.Metadata != nil {
