@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	genericapiserverstorage "k8s.io/apiserver/pkg/server/storage"
+	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 
 	"github.com/golang/glog"

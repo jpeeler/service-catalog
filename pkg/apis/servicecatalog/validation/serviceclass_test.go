@@ -51,7 +51,7 @@ func TestValidateServiceClass(t *testing.T) {
 		{
 			name: "valid serviceClass - plan with underscore in name",
 			serviceClass: &servicecatalog.ServiceClass{
-				ObjectMeta: kapi.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-serviceclass",
 				},
 				Bindable:   true,
@@ -69,7 +69,7 @@ func TestValidateServiceClass(t *testing.T) {
 		{
 			name: "valid serviceClass - uppercase in GUID",
 			serviceClass: &servicecatalog.ServiceClass{
-				ObjectMeta: kapi.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test-serviceclass",
 				},
 				Bindable:   true,

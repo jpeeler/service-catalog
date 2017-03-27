@@ -47,7 +47,7 @@ func TestValidateInstance(t *testing.T) {
 		{
 			name: "populated checksum",
 			instance: &servicecatalog.Instance{
-				ObjectMeta: kapi.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-instance",
 					Namespace: "test-ns",
 				},

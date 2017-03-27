@@ -50,7 +50,7 @@ func TestValidateBinding(t *testing.T) {
 		{
 			name: "checksum set on create",
 			binding: &servicecatalog.Binding{
-				ObjectMeta: kapi.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test-binding",
 					Namespace: "test-ns",
 				},

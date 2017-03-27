@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/ghodss/yaml"
@@ -25,7 +26,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
+	runtimeutil "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
@@ -35,7 +37,7 @@ import (
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1alpha1"
 	"github.com/kubernetes-incubator/service-catalog/pkg/brokerapi"
 	servicecatalogclientset "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset/typed/servicecatalog/v1alpha1"
-	informers "github.com/kubernetes-incubator/service-catalog/pkg/client/informers_generated/servicecatalog/v1alpha1"
+	informers "github.com/kubernetes-incubator/service-catalog/pkg/client/informers_generated/externalversions/servicecatalog/v1alpha1"
 	listers "github.com/kubernetes-incubator/service-catalog/pkg/client/listers_generated/servicecatalog/v1alpha1"
 )
 
@@ -112,7 +114,7 @@ type controller struct {
 
 // Run runs the controller until the given stop channel can be read from.
 func (c *controller) Run(stopCh <-chan struct{}) {
-	defer runtime.HandleCrash()
+	defer runtimeutil.HandleCrash()
 	glog.Info("Starting service-catalog controller")
 
 	<-stopCh
@@ -493,7 +495,7 @@ func (c *controller) reconcileInstance(instance *v1alpha1.Instance) {
 			}
 		}
 
-		ns, err := c.kubeClient.Core().Namespaces().Get(instance.Namespace)
+		ns, err := c.kubeClient.Core().Namespaces().Get(instance.Namespace, metav1.GetOptions{})
 		if err != nil {
 			glog.Errorf("Failed to get namespace during instance create (%s)", err)
 			return
@@ -628,7 +630,7 @@ func (c *controller) updateInstanceFinalizers(
 	// Get the latest version of the instance so that we can avoid conflicts
 	// (since we have probably just updated the status of the instance and are
 	// now removing the last finalizer).
-	instance, err := c.serviceCatalogClient.Instances(instance.Namespace).Get(instance.Name)
+	instance, err := c.serviceCatalogClient.Instances(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
 	if err != nil {
 		glog.Errorf("Error getting Instance %v/%v to finalize: %v", instance.Namespace, instance.Name, err)
 	}
@@ -781,7 +783,7 @@ func (c *controller) reconcileBinding(binding *v1alpha1.Binding) {
 			}
 		}
 
-		ns, err := c.kubeClient.Core().Namespaces().Get(instance.Namespace)
+		ns, err := c.kubeClient.Core().Namespaces().Get(instance.Namespace, metav1.GetOptions{})
 		if err != nil {
 			glog.Errorf("Failed to get namespace during binding (%s)", err)
 			return
