@@ -22,6 +22,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1alpha1"
 	"github.com/kubernetes-incubator/service-catalog/pkg/brokerapi"
@@ -139,7 +140,7 @@ func TestBasicFlows(t *testing.T) {
 		t.Fatalf("error waiting for instance to become ready: %v", err)
 	}
 
-	retInst, err := client.Instances(instance.Namespace).Get(instance.Name)
+	retInst, err := client.Instances(instance.Namespace).Get(instance.Name, metav1.GetOptions{})
 	if err != nil {
 		t.Fatalf("error getting instance %s/%s back", instance.Namespace, instance.Name)
 	}
@@ -171,7 +172,7 @@ func TestBasicFlows(t *testing.T) {
 	binding := &v1alpha1.Binding{
 		ObjectMeta: metav1.ObjectMeta{Namespace: testNamespace, Name: testBindingName},
 		Spec: v1alpha1.BindingSpec{
-			InstanceRef: metav1.LocalObjectReference{
+			InstanceRef: v1.LocalObjectReference{
 				Name: testInstanceName,
 			},
 			SecretName: testSecretName,
