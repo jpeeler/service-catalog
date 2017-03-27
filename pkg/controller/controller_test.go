@@ -31,6 +31,7 @@ import (
 	servicecatalogclientset "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 
 	clientgofake "k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/pkg/api/v1"
@@ -875,9 +876,9 @@ func TestReconcileInstance(t *testing.T) {
 
 	fakeBrokerClient.CatalogClient.RetCatalog = getTestCatalog()
 
-	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, clientgoruntime.Object, error) {
-		return true, &apiv1.Namespace{
-			ObjectMeta: apiv1.ObjectMeta{
+	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, runtime.Object, error) {
+		return true, &v1.Namespace{
+			ObjectMeta: metav1.ObjectMeta{
 				UID: types.UID("test_uid_foo"),
 			},
 		}, nil
@@ -938,7 +939,7 @@ func TestReconcileInstance(t *testing.T) {
 			t.Fatalf("Unexpected parameters, expected none, got %+v", si.Parameters)
 		}
 
-		ns, _ := fakeKubeClient.Core().Namespaces().Get(instance.Namespace)
+		ns, _ := fakeKubeClient.Core().Namespaces().Get(instance.Namespace, metav1.GetOptions{})
 		if string(ns.UID) != si.OrganizationGUID {
 			t.Fatalf("Unexpected OrganizationGUID: expected %q, got %q", string(ns.UID), si.OrganizationGUID)
 		}
@@ -953,8 +954,8 @@ func TestReconcileInstanceNamespaceError(t *testing.T) {
 
 	fakeBrokerClient.CatalogClient.RetCatalog = getTestCatalog()
 
-	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, clientgoruntime.Object, error) {
-		return true, &apiv1.Namespace{}, errors.New("No namespace")
+	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, runtime.Object, error) {
+		return true, &v1.Namespace{}, errors.New("No namespace")
 	})
 
 	sharedInformers.Brokers().Informer().GetStore().Add(getTestBroker())
@@ -1168,8 +1169,8 @@ func TestReconcileBindingWithParameters(t *testing.T) {
 
 	fakeBrokerClient.CatalogClient.RetCatalog = getTestCatalog()
 
-	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, clientgoruntime.Object, error) {
-		return true, &apiv1.Namespace{
+	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, runtime.Object, error) {
+		return true, &v1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				UID: types.UID("test_ns_uid"),
 			},
@@ -1207,7 +1208,7 @@ func TestReconcileBindingWithParameters(t *testing.T) {
 
 	testController.reconcileBinding(binding)
 
-	ns, _ := fakeKubeClient.Core().Namespaces().Get(binding.ObjectMeta.Namespace)
+	ns, _ := fakeKubeClient.Core().Namespaces().Get(binding.ObjectMeta.Namespace, metav1.GetOptions{})
 	if string(ns.UID) != fakeBrokerClient.Bindings[fakebrokerapi.BindingsMapKey(instanceGUID, bindingGUID)].AppID {
 		t.Fatalf("Unexpected broker AppID: expected %q, got %q", string(ns.UID), fakeBrokerClient.Bindings[instanceGUID+":"+bindingGUID].AppID)
 	}
@@ -1279,8 +1280,8 @@ func TestReconcileBindingNamespaceError(t *testing.T) {
 
 	fakeBrokerClient.CatalogClient.RetCatalog = getTestCatalog()
 
-	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, clientgoruntime.Object, error) {
-		return true, &apiv1.Namespace{}, errors.New("No namespace")
+	fakeKubeClient.AddReactor("get", "namespaces", func(action clientgotesting.Action) (bool, runtime.Object, error) {
+		return true, &v1.Namespace{}, errors.New("No namespace")
 	})
 
 	sharedInformers.Brokers().Informer().GetStore().Add(getTestBroker())
