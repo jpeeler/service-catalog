@@ -37,8 +37,8 @@ import (
 	"github.com/kubernetes-incubator/service-catalog/cmd/apiserver/app/server"
 	_ "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/install"
 	servicecatalogclient "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset"
-	_ "k8s.io/kubernetes/pkg/api/install"
-	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
+	_ "k8s.io/client-go/pkg/api/install"
+	_ "k8s.io/client-go/pkg/apis/extensions/install"
 )
 
 const (

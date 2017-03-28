@@ -33,7 +33,7 @@ import (
 	// avoid error `servicecatalog/v1alpha1 is not enabled`
 	_ "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/install"
 	// avoid error `no kind is registered for the type metav1.ListOptions`
-	_ "k8s.io/kubernetes/pkg/api/install"
+	_ "k8s.io/client-go/pkg/api/install"
 	// our versioned types
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1alpha1"
 	// our versioned client
