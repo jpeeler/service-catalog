@@ -34,7 +34,7 @@ import (
 	"k8s.io/client-go/pkg/api"
 	fakerestclient "k8s.io/client-go/rest/fake"
 
-	"k8s.io/kubernetes/pkg/api/testapi"
+	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/testapi"
 
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1alpha1"
 )
@@ -93,6 +93,7 @@ func getFakeCoreRESTClient() *fakerestclient.RESTClient {
 		NegotiatedSerializer: serializer.DirectCodecFactory{
 			CodecFactory: api.Codecs,
 		},
+		APIRegistry: api.Registry,
 	}
 }
 

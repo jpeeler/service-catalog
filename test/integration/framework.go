@@ -34,11 +34,11 @@ import (
 	genericserveroptions "k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 
-	_ "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/install"
-	_ "k8s.io/kubernetes/pkg/api/install"
-
 	"github.com/kubernetes-incubator/service-catalog/cmd/apiserver/app/server"
+	_ "github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/install"
 	servicecatalogclient "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset"
+	_ "k8s.io/kubernetes/pkg/api/install"
+	_ "k8s.io/kubernetes/pkg/apis/extensions/install"
 )
 
 const (
