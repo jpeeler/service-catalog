@@ -21,8 +21,6 @@ import (
 
 	"github.com/kubernetes-incubator/service-catalog/pkg/storage/etcd"
 	"github.com/kubernetes-incubator/service-catalog/pkg/storage/tpr"
-	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	genericapirequest "k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/generic/registry"
@@ -149,8 +147,7 @@ func (o Options) GetStorage(
 	resourcePrefix string,
 	scopeStrategy rest.NamespaceScopedStrategy,
 	newListFunc func() runtime.Object,
-	// JPEELER: storage.AttrFunc?
-	getAttrsFunc func(runtime.Object) (labels.Set, fields.Set, error),
+	getAttrsFunc storage.AttrFunc,
 	trigger storage.TriggerPublisherFunc,
 ) (storage.Interface, factory.DestroyFunc) {
 	if o.storageType == StorageTypeEtcd {
