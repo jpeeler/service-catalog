@@ -13,6 +13,7 @@ import:
 - package: github.com/gogo/protobuf/proto
 - package: golang.org/x/net/http2
 - package: github.com/golang/protobuf/proto
+- package: github.com/golang/glog
 - package: gopkg.in/natefinch/lumberjack.v2
 - package: github.com/pkg/errors
 - package: github.com/howeyc/gopass
