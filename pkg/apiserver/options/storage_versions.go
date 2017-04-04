@@ -25,10 +25,6 @@ import (
 	"github.com/spf13/pflag"
 )
 
-const (
-	DefaultEtcdPathPrefix = "/registry"
-)
-
 // StorageSerializationOptions contains the options for encoding resources.
 type StorageSerializationOptions struct {
 	StorageVersions string
@@ -38,6 +34,7 @@ type StorageSerializationOptions struct {
 	DefaultStorageVersions string
 }
 
+// NewStorageSerializationOptions is used in runEtcdServer
 func NewStorageSerializationOptions() *StorageSerializationOptions {
 	return &StorageSerializationOptions{
 		DefaultStorageVersions: api.Registry.AllPreferredGroupVersions(),

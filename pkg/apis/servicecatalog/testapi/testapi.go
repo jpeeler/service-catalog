@@ -45,6 +45,7 @@ import (
 	"k8s.io/client-go/pkg/apis/rbac"
 	"k8s.io/client-go/pkg/apis/storage"
 
+	// Ensure that client-go /api... is initialized
 	_ "k8s.io/client-go/pkg/api/install"
 	_ "k8s.io/client-go/pkg/apis/apps/install"
 	_ "k8s.io/client-go/pkg/apis/authentication/install"
@@ -59,24 +60,38 @@ import (
 )
 
 var (
-	Groups        = make(map[string]TestGroup)
-	Default       TestGroup
+	// Groups exported on purpose
+	Groups = make(map[string]TestGroup)
+	// Default exported on purpose
+	Default TestGroup
+	// Authorization exported on purpose
 	Authorization TestGroup
-	Autoscaling   TestGroup
-	Batch         TestGroup
-	Extensions    TestGroup
-	Apps          TestGroup
-	Policy        TestGroup
-	Federation    TestGroup
-	Rbac          TestGroup
-	Certificates  TestGroup
-	Storage       TestGroup
-	ImagePolicy   TestGroup
+	// Autoscaling exported on purpose
+	Autoscaling TestGroup
+	// Batch exported on purpose
+	Batch TestGroup
+	// Extensions exported on purpose
+	Extensions TestGroup
+	// Apps exported on purpose
+	Apps TestGroup
+	// Policy exported on purpose
+	Policy TestGroup
+	// Federation exported on purpose
+	Federation TestGroup
+	// Rbac exported on purpose
+	Rbac TestGroup
+	// Certificates exported on purpose
+	Certificates TestGroup
+	// Storage exported on purpose
+	Storage TestGroup
+	// ImagePolicy exported on purpose
+	ImagePolicy TestGroup
 
 	serializer        runtime.SerializerInfo
 	storageSerializer runtime.SerializerInfo
 )
 
+// TestGroup exported on purpose
 type TestGroup struct {
 	externalGroupVersion schema.GroupVersion
 	internalGroupVersion schema.GroupVersion
@@ -256,10 +271,12 @@ func init() {
 	Authorization = Groups[authorization.GroupName]
 }
 
+// ContentConfig returns group, version, and codec
 func (g TestGroup) ContentConfig() (string, *schema.GroupVersion, runtime.Codec) {
 	return "application/json", g.GroupVersion(), g.Codec()
 }
 
+// GroupVersion returns the group,version
 func (g TestGroup) GroupVersion() *schema.GroupVersion {
 	copyOfGroupVersion := g.externalGroupVersion
 	return &copyOfGroupVersion
@@ -295,6 +312,7 @@ func (g TestGroup) NegotiatedSerializer() runtime.NegotiatedSerializer {
 	return api.Codecs
 }
 
+// StorageMediaType returns the value of the storage type environment variable
 func StorageMediaType() string {
 	return os.Getenv("KUBE_TEST_API_STORAGE_TYPE")
 }
@@ -347,17 +365,16 @@ func (g TestGroup) SelfLink(resource, name string) string {
 			return fmt.Sprintf("/api/%s/%s", g.externalGroupVersion.Version, resource)
 		}
 		return fmt.Sprintf("/api/%s/%s/%s", g.externalGroupVersion.Version, resource, name)
-	} else {
-		// TODO: will need a /apis prefix once we have proper multi-group
-		// support
-		if name == "" {
-			return fmt.Sprintf("/apis/%s/%s/%s", g.externalGroupVersion.Group, g.externalGroupVersion.Version, resource)
-		}
-		return fmt.Sprintf("/apis/%s/%s/%s/%s", g.externalGroupVersion.Group, g.externalGroupVersion.Version, resource, name)
 	}
+	// TODO: will need a /apis prefix once we have proper multi-group
+	// support
+	if name == "" {
+		return fmt.Sprintf("/apis/%s/%s/%s", g.externalGroupVersion.Group, g.externalGroupVersion.Version, resource)
+	}
+	return fmt.Sprintf("/apis/%s/%s/%s/%s", g.externalGroupVersion.Group, g.externalGroupVersion.Version, resource, name)
 }
 
-// Returns the appropriate path for the given prefix (watch, proxy, redirect, etc), resource, namespace and name.
+// ResourcePathWithPrefix returns the appropriate path for the given prefix (watch, proxy, redirect, etc), resource, namespace and name.
 // For ex, this is of the form:
 // /api/v1/watch/namespaces/foo/pods/pod0 for v1.
 func (g TestGroup) ResourcePathWithPrefix(prefix, resource, namespace, name string) string {
@@ -387,13 +404,14 @@ func (g TestGroup) ResourcePathWithPrefix(prefix, resource, namespace, name stri
 	return path
 }
 
-// Returns the appropriate path for the given resource, namespace and name.
+// ResourcePath returns the appropriate path for the given resource, namespace and name.
 // For example, this is of the form:
 // /api/v1/namespaces/foo/pods/pod0 for v1.
 func (g TestGroup) ResourcePath(resource, namespace, name string) string {
 	return g.ResourcePathWithPrefix("", resource, namespace, name)
 }
 
+// RESTMapper returns the rest mapper interface
 func (g TestGroup) RESTMapper() meta.RESTMapper {
 	return api.Registry.RESTMapper()
 }
@@ -408,7 +426,7 @@ func ExternalGroupVersions() schema.GroupVersions {
 	return versions
 }
 
-// Get codec based on runtime.Object
+// GetCodecForObject gets codec based on runtime.Object
 func GetCodecForObject(obj runtime.Object) (runtime.Codec, error) {
 	kinds, _, err := api.Scheme.ObjectKinds(obj)
 	if err != nil {
@@ -436,6 +454,7 @@ func GetCodecForObject(obj runtime.Object) (runtime.Codec, error) {
 	return nil, fmt.Errorf("unexpected kind: %v", kind)
 }
 
+// NewTestGroup returns test group
 func NewTestGroup(external, internal schema.GroupVersion, internalTypes map[string]reflect.Type, externalTypes map[string]reflect.Type) TestGroup {
 	return TestGroup{external, internal, internalTypes, externalTypes}
 }
