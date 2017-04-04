@@ -31,8 +31,8 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
 	"k8s.io/apiserver/pkg/storage"
-	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/pkg/api"
+	restclient "k8s.io/client-go/rest"
 )
 
 // StorageProvider provides a factory method to create a new APIGroupInfo for

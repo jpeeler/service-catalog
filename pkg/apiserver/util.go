@@ -20,9 +20,9 @@ import (
 	servicecatalogrest "github.com/kubernetes-incubator/service-catalog/pkg/registry/servicecatalog/rest"
 	"github.com/kubernetes-incubator/service-catalog/pkg/registry/servicecatalog/server"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/version"
+	restclient "k8s.io/client-go/rest"
 )
 
 func restStorageProviders(
