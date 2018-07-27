@@ -41,16 +41,99 @@ import (
 	"github.com/kubernetes-incubator/service-catalog/internal/test"
 	"github.com/kubernetes-incubator/service-catalog/pkg/apis/servicecatalog/v1beta1"
 	"github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset/fake"
+	svcatfake "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset/fake"
 	"github.com/kubernetes-incubator/service-catalog/pkg/svcat"
 	"github.com/kubernetes-incubator/service-catalog/pkg/svcat/service-catalog"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	k8stesting "k8s.io/client-go/testing"
 )
 
 var catalogRequestRegex = regexp.MustCompile("/apis/servicecatalog.k8s.io/v1beta1/(.*)")
 var coreRequestRegex = regexp.MustCompile("/api/v1/(.*)")
+
+// Verify that svcat gracefully handles when the namespaced broker feature flag is disabled
+// TODO: Once we take Namespaced brokers out from behind the feature flag, this test won't be necessary
+func TestGetSvcatWithNamespacedBrokerFeatureDisabled(t *testing.T) {
+	// Verify that commands work with the feature disabled, and don't return errors
+	testcases := []struct {
+		cmd        string
+		wantOutput string
+	}{
+		{"get brokers", "my-cluster-broker"},
+		{"get classes", "my-cluster-class"},
+		{"get class my-cluster-class", "my-cluster-class"},
+		{"get plans", "my-cluster-plan"},
+		{"get plan my-cluster-plan", "my-cluster-plan"},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.cmd, func(t *testing.T) {
+
+			// Setup fake data for the app
+			var fakes = []runtime.Object{
+				&v1beta1.ClusterServiceBroker{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "my-cluster-broker",
+					},
+				},
+				&v1beta1.ClusterServiceClass{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "my-cluster-class",
+					},
+					Spec: v1beta1.ClusterServiceClassSpec{
+						CommonServiceClassSpec: v1beta1.CommonServiceClassSpec{
+							ExternalName: "my-cluster-class",
+						},
+					},
+				},
+				&v1beta1.ClusterServicePlan{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "my-cluster-plan",
+					},
+					Spec: v1beta1.ClusterServicePlanSpec{
+						CommonServicePlanSpec: v1beta1.CommonServicePlanSpec{
+							ExternalName: "my-cluster-plan",
+						},
+					},
+				},
+			}
+			svcatClient := svcatfake.NewSimpleClientset(fakes...)
+
+			// When the feature flag isn't enabled, the server will return resource not found
+			svcatClient.PrependReactor("list", "servicebrokers",
+				func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, k8serrors.NewNotFound(v1beta1.Resource("servicebrokers"), "")
+				})
+			svcatClient.PrependReactor("list", "serviceclasses",
+				func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, k8serrors.NewNotFound(v1beta1.Resource("serviceclasses"), "")
+				})
+			svcatClient.PrependReactor("list", "serviceplans",
+				func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
+					return true, nil, k8serrors.NewNotFound(v1beta1.Resource("serviceplans"), "")
+				})
+
+			cxt := newContext()
+			cxt.App = &svcat.App{
+				CurrentNamespace: "default",
+				SvcatClient:      &servicecatalog.SDK{ServiceCatalogClient: svcatClient},
+			}
+
+			gotOutput := executeFakeCommand(t, tc.cmd, cxt, false)
+
+			if !strings.Contains(gotOutput, tc.wantOutput) {
+				t.Fatalf("unexpected command output \n\nWANT:\n%q\n\nGOT:\n%q\n", tc.wantOutput, gotOutput)
+			}
+		})
+	}
+
+}
 
 func TestCommandValidation(t *testing.T) {
 	testcases := []struct {
@@ -103,6 +186,7 @@ func TestCommandOutput(t *testing.T) {
 		{name: "get broker (json)", cmd: "get broker ups-broker -o json", golden: "output/get-broker.json"},
 		{name: "get broker (yaml)", cmd: "get broker ups-broker -o yaml", golden: "output/get-broker.yaml"},
 		{name: "describe broker", cmd: "describe broker ups-broker", golden: "output/describe-broker.txt"},
+		{name: "register broker", cmd: "register ups-broker --url http://upsbroker.com", golden: "output/register-broker.txt"},
 
 		{name: "list all classes", cmd: "get classes", golden: "output/get-classes.txt"},
 		{name: "list all classes (json)", cmd: "get classes -o json", golden: "output/get-classes.json"},
@@ -249,7 +333,7 @@ func TestNamespacedCommands(t *testing.T) {
 			cxt := newContext()
 			cxt.App = &svcat.App{
 				CurrentNamespace: contextNS,
-				SDK:              &servicecatalog.SDK{ServiceCatalogClient: fakeClient},
+				SvcatClient:      &servicecatalog.SDK{ServiceCatalogClient: fakeClient},
 			}
 			cxt.Output = ioutil.Discard
 
@@ -304,7 +388,7 @@ func TestParametersForBinding(t *testing.T) {
 
 			cxt := newContext()
 			cxt.App = &svcat.App{
-				SDK: &servicecatalog.SDK{ServiceCatalogClient: fakeClient},
+				SvcatClient: &servicecatalog.SDK{ServiceCatalogClient: fakeClient},
 			}
 			cxt.Output = ioutil.Discard
 

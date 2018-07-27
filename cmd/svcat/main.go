@@ -37,7 +37,7 @@ import (
 	"github.com/kubernetes-incubator/service-catalog/cmd/svcat/versions"
 	svcatclient "github.com/kubernetes-incubator/service-catalog/pkg/client/clientset_generated/clientset"
 	"github.com/kubernetes-incubator/service-catalog/pkg/svcat"
-	"github.com/kubernetes-incubator/service-catalog/pkg/svcat/kube"
+	"github.com/kubernetes-incubator/service-catalog/pkg/util/kube"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -117,6 +117,7 @@ func buildRootCommand(cxt *command.Context) *cobra.Command {
 
 	cmd.AddCommand(newGetCmd(cxt))
 	cmd.AddCommand(newDescribeCmd(cxt))
+	cmd.AddCommand(broker.NewRegisterCmd(cxt))
 	cmd.AddCommand(instance.NewProvisionCmd(cxt))
 	cmd.AddCommand(instance.NewDeprovisionCmd(cxt))
 	cmd.AddCommand(binding.NewBindCmd(cxt))
